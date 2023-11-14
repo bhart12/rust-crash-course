@@ -70,6 +70,14 @@ impl Point
     }
 }
 
+#[derive(PartialEq)]
+enum AnimalType {Dog, Cat, Rabbit}
+
+enum Shapes {
+    Circle { radius: f64, center: (f64, f64)},
+    Rectangle { width: f64, height: f64, }
+}
+
 fn main() {
     let mut name: &str = "John";
     name = "Jane";
@@ -128,4 +136,22 @@ fn main() {
     let p0 = Point::zero();
     println!("{:?}", p0);
 
+
+    // Chapter 7
+    let fluffy = AnimalType::Dog;
+    // switch statement
+    match fluffy {
+        AnimalType::Dog => println!("Woof!"),
+        AnimalType::Cat => println!("Meow!"),
+        AnimalType::Rabbit => println!("Hoot!"),
+        _ => println!("Something else!")
+    }
+
+    
+    let rectangle = Shapes::Rectangle { width: 3.0, height: 4.0 };
+
+    if let Shapes::Rectangle { width, height } = rectangle
+    {
+        println!("width = {}, height = {}", width, height);
+    }
 }
