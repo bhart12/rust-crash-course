@@ -1,6 +1,6 @@
 #![deny(clippy::all)]
 
-
+use std::collections::HashMap;
 
 const MY_AGE: u8 = 25;
 
@@ -104,11 +104,13 @@ fn main() {
     greet(&s1);
 
 
+
     // Chapter 5
     println!("{}", say_hello_to_1(String::from("Jerry")));
     // inline function
     let say_hello_to_full_name = |first_name: &str, last_name: &str| format!("Hello, {} {}!", first_name, last_name);
     println!("{}", say_hello_to_full_name("Jerry", "Johnson"));
+
 
 
     // Chapter 6
@@ -137,6 +139,7 @@ fn main() {
     println!("{:?}", p0);
 
 
+
     // Chapter 7
     let fluffy = AnimalType::Dog;
     // switch statement
@@ -147,11 +150,85 @@ fn main() {
         _ => println!("Something else!")
     }
 
-    
+
     let rectangle = Shapes::Rectangle { width: 3.0, height: 4.0 };
 
     if let Shapes::Rectangle { width, height } = rectangle
     {
         println!("width = {}, height = {}", width, height);
     }
+
+
+
+    // Chapter 8
+    let values = ("Hello", "World", 30);
+    let vector: [&str; 2] = ["foo", "bar"];
+    // will iterate through array and print each value on a new line
+    for value in vector.iter()
+    {
+        println!("{}", value);
+    }
+    println!("Foo is {}", &vector[0]);
+    let length = vector.len();
+
+    // Create vector with unknown size
+    let mut nums = vec![10, 20];
+    nums.iter().map(|x: &i32| x * 2);
+    nums.push(4);
+    let four = nums.pop();
+    println!("Nums are {:?}", nums);
+    // add another vector onto your vector
+    nums.extend_from_slice(&[4, 5, 6]);
+    println!("Nums are {:?}", nums);
+    // move contents from one array to another
+    let mut values1 = vec![1, 2, 3];
+    let mut values2 = vec![4, 5, 6];
+    println!("values1 = {:?}", values1);
+    println!("values2 = {:?}", values2);
+    values1.append(&mut values2);
+    println!("values1 = {:?}", values1);
+    println!("values2 = {:?}", values2);
+
+    if values1.contains(&3)
+    {
+        println!("value1 has 3");
+    }
+
+    let iter = nums.iter();
+    let sum: i32 = iter.sum();
+    println!("SUM is {}", sum);
+
+    let mult_by_2: Vec<i32> = nums.iter().map(|v| v * 2).collect();
+    println!("{:?}", mult_by_2);
+
+    let names = vec!["John", "Jane", "Joe"];
+    for name in names.into_iter().filter(|name| name.len() <= 3)
+    {
+        println!("{}", name);
+    }
+
+    // Be sure to include "use std::collections::HashMap;"
+    let mut hash_values: HashMap<&str, &str> = HashMap::new();
+    hash_values.insert("foo", "bar");
+
+    for (&k, &v) in &hash_values
+    {
+        println!("{} {}", k, v);
+    }
+
+    if hash_values.contains_key("foo")
+    {
+        println!("Does contain foo");
+    }
+    hash_values.remove("foo");
+    if !hash_values.contains_key("foo")
+    {
+        println!("Does NOT contain foo");
+    }
+
+    // will check if key "name" exists in hash map, and if not inserts one where the value is "Jane Doe"
+    hash_values.entry("name").or_insert("Jane Doe");
+
+
+
 }
