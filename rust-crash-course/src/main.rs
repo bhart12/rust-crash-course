@@ -267,4 +267,22 @@ fn main() {
         println!("There is NOT a value");    
     }
 
+
+
+    // Chapter 10
+    //value can be an &str or an error
+    let value: Result<&str, Box<dyn std::error::Error>> = Ok("Hello, not an error");
+    match value {
+        Ok(value) => println!("{}", value),
+        Err(error) => println!("{}", error),
+    };
+
+    let value: Result<&str, ()> = Err(());
+    match value {
+        Ok(value) => println!("{}", value),
+        Err(_) => println!("Some error occurred"),
+    };
+
+    // Did not write everything from this
+
 }
