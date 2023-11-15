@@ -231,4 +231,40 @@ fn main() {
 
 
 
+    // Chapter 9
+    //let name: Option<&str> = None;
+    let name: Option<&str> = Some("John Doe");
+    match name {
+        Some(name) => println!("Hello {}!", name),
+        None => println!("There is no name"),
+    };
+
+    //This will print name if it has a value, or the error message if name = None
+    // this didn't work like he said it would
+    //let unwrapped_name = name.expect("Name was not provided");
+    //println!("Name is {}", unwrapped_name);
+
+    let mut age: Option<i8> = Some(20);
+    // this didn't work like he said it would
+    //match age.as_mut() {
+    //    Some(age) => *age += 10,
+    //    None => {},
+    //};
+    println!("Age is {}", age.unwrap());
+
+    // this didn't work like he said it would
+    //let name2: Option<&str> = None;
+    //let unwrapped = name2.unwrap_or("James Doe");
+    //println!("name is {}", unwrapped);
+
+    let name2: Option<&str> = None;
+    if name2.is_some()
+    {
+        println!("There is a value");
+    }
+    else
+    {
+        println!("There is NOT a value");    
+    }
+
 }
