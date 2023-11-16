@@ -1,6 +1,7 @@
 #![deny(clippy::all)]
 
 use std::collections::HashMap;
+use std::fmt;
 
 const MY_AGE: u8 = 25;
 
@@ -77,6 +78,76 @@ enum Shapes {
     Circle { radius: f64, center: (f64, f64)},
     Rectangle { width: f64, height: f64, }
 }
+
+// This static tells Rust that the string slice needs to live throughout the life of the program, and not just until this function returns
+fn get_full_name_ch_11() -> &'static str
+{
+    "John Doe"
+}
+
+// This says param "a" lives as long as the first variable that was passed in
+// Same with "b" variable
+// and the return value lives as long as the first variable that was passed in does
+// NOTE that these parameters were created in main, so the return value lives that long
+// fn get_random_name<'c, 'd>(a: &'c str, b: &'d str) -> &'c str
+fn get_random_name<'l1>(a: &'l1 str, b: &'l1 str) -> &'l1 str
+{
+    a
+}
+
+// says str passed into name has to have same lifetime as Person_ch11 struct
+struct Person_ch11<'a>
+{
+    name: &'a str,
+}
+
+
+
+// Chapter 12
+#[derive(Debug)]
+struct Person_ch12 {
+    first_name: String,
+    last_name: String,
+    age: u8,
+}
+
+trait HasFullName {
+    fn full_name(&self) -> String;
+}
+
+impl HasFullName for Person_ch12 {
+    fn full_name(&self) -> String {
+        format!("{} {}", self.first_name, self.last_name)
+    }
+}
+
+// Can be used by anything that has the "HasFullName" trait shown above
+fn print_full_name_and_age(value: &impl HasFullName) {
+    println!("{}", value.full_name());
+}
+
+trait CanInitializeWithFullName {
+    fn new(full_name: &str) -> Self;
+}
+
+// new function allows us to call Person_ch12::new() as shown in main
+impl CanInitializeWithFullName for Person_ch12 {
+    fn new(full_name: &str) -> Self {
+        let parts: Vec<&str> = full_name.split(' ').collect();
+        Person_ch12 {
+            first_name: parts[0].to_string(),
+            last_name: parts[1].to_string(),
+            age: 30,
+        }
+    }
+}
+
+impl fmt::Display for Person_ch12 {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{} {} is {} years old", self.first_name, self.last_name, self.age)
+    }
+}
+
 
 fn main() {
     let mut name: &str = "John";
@@ -283,6 +354,45 @@ fn main() {
         Err(_) => println!("Some error occurred"),
     };
 
-    // Did not write everything from this
+    // Did not write everything from ch 10
+
+
+
+    // Chapter 11
+    //&str (string slice) is a borrowed value
+    // the string itself is being created somewhere, and we are just borrowing that value
+
+    //String is an actual string object
+
+    let full_name = get_full_name_ch_11();
+    println!("{}", full_name);
+
+    let name = get_random_name("john", "jane");
+    println!("{}", name);
+
+    //3 Lifetime rules
+    //Rule 1: Compiler assigns lifetime operator to each parameter that is passed by referrence
+    //Rule 2: If you have a single param that is a reference, and a single return value that is a reference, the compiler will automatically give the return value the same lifetime as that param
+    //Rule 3: If you have a reference to &self or &mut, then the lifetime of self is assigned to return value
+
+
+
+    // Chapter 12
+    let person = Person_ch12 {
+        first_name: "John".to_string(),
+        last_name: "Doe".to_string(),
+        age: 30,
+    };
+    println!("{:?}", person);
+
+    let person2 = Person_ch12::new("James Dough");
+    println!("First name = {}, last name = {}, age = {}", person2.first_name, person2.last_name, person2.age);
+    // Done with that fmt::Display line for Person_ch12
+    println!("{}", person2);
+    print_full_name_and_age(&person2);
+
+    //Didn't write everything for this, but may go back
+    
+
 
 }
