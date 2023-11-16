@@ -2,6 +2,13 @@
 
 use std::collections::HashMap;
 use std::fmt;
+use std::ops::Deref;
+use std::rc::Rc;
+//use std::cell::Cell;
+use std::ops::AddAssign;
+use futures::executor::block_on;
+use tokio::time::{sleep, Duration};
+use futures::Future;
 
 const MY_AGE: u8 = 25;
 
@@ -22,10 +29,11 @@ fn say_hello_to_1(to_person: String) -> String
     format!("Hello, {}!", to_person)
 }
 
-fn process_name(name: &str, callback:fn(&str) -> ())
-{
-    callback(name);
-}
+//Function that calls another function
+//fn process_name(name: &str, callback:fn(&str) -> ())
+//{
+//    callback(name);
+//}
 
 struct Person {
     name: String,
@@ -149,7 +157,94 @@ impl fmt::Display for Person_ch12 {
 }
 
 
-fn main() {
+// Chapter 13
+struct BoxedValue<T> {
+    value: T,
+}
+
+impl<T> BoxedValue<T>{
+    fn new(value: T) -> Self {
+        BoxedValue { value }
+    }
+}
+
+// Allows us to dereferce a value of our BoxedValue type with the *
+// Requires std::ops::Deref
+impl<T> Deref for BoxedValue<T> {
+    type Target = T;
+    fn deref(&self) -> &Self::Target {
+        &self.value
+    }
+}
+
+
+
+// Chapter 14
+#[derive(Debug)]
+struct Point_ch14<T> {
+    x: T,
+    y: T,
+}
+
+//AddAssign means the value has to be able to be added, like an int or float
+impl<T> Point_ch14<T> {
+    fn move_offset(&mut self, x: T, y: T)
+    where
+        T: AddAssign,
+    {
+        self.x += x;
+        self.y += y;
+    }
+}
+
+impl<T: PartialEq> PartialEq for Point_ch14<T> {
+    fn eq(&self, other: &Self) -> bool {
+        self.x == other.x && self.y == other.y
+    }
+}
+
+
+
+
+// Chapter 16
+async fn async_get_name() -> String
+{
+    "John".to_string()
+}
+
+async fn call_api_one() -> String
+{
+    sleep(Duration::from_secs(1));
+    "One".to_string()
+}
+
+async fn call_api_two() -> String
+{
+    sleep(Duration::from_secs(1));
+    "Two".to_string()
+}
+
+fn call_api_one_future() -> impl Future<Output = String>
+{
+    async
+    {
+        sleep(Duration::from_secs(1));
+        "One".to_string()
+    }
+}
+
+fn call_api_two_future() -> impl Future<Output = String>
+{
+    async
+    {
+        sleep(Duration::from_secs(1));
+        "Two".to_string()
+    }
+}
+
+// Allows main to become an async function
+#[tokio::main]
+async fn main() {
     let mut name: &str = "John";
     name = "Jane";
 
@@ -392,7 +487,57 @@ fn main() {
     print_full_name_and_age(&person2);
 
     //Didn't write everything for this, but may go back
-    
 
+
+
+    //Chapter 13
+    // Box stores values in the heap, while the pointer is on the stack, opposed to storing the value on the stack
+    let age = Box::new(22);
+    let twice = *age * 2;
+    println!("{}", twice);
+
+    let my_age = BoxedValue::new(22);
+    println!("Value with MY deref is {}", *my_age);
+    // In this case, *age = *(age.deref())
+
+    //let array = vec!["John".to_string(), "Jane".to_string()];
+    //let rc = Rc::new(array);
+    //let weak = Rc::downgrade(&rc);
+    //drop(rc);
+    //weak.upgrade().unwrap();
+
+
+
+    // Chapter 14
+    let mut p1 = Point_ch14 {x:1.0, y:2.0};
+    p1.move_offset(3.0, 4.0);
+    println!("{:?}", p1);
+    let mut p2 = Point_ch14 {x:3.0, y:4.0};
+    // We can do this now because we implemented PartialEq for Point_ch14
+    if p1 == p2
+    {
+        println!("p1 and p2 are equal");
+    }
+    else {
+        println!("p1 and p2 are NOT equal");
+    }
+
+
+
+    // Chapter 15
+    // block_on() is like a wait()
+    let name = block_on(async_get_name());
+    println!("Hello, {}!", name);
+
+    // Tells fucntions to wait until they are complete
+    let one = call_api_one().await;
+    println!("{}!", one);
+    let two = call_api_two().await;
+    println!("{}!", two);
+
+    let one = call_api_one_future().await;
+    println!("{}!", one);
+    let two = call_api_two_future().await;
+    println!("{}!", two);
 
 }
